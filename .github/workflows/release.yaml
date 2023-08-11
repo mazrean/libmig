@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    tags:
+      - "v*"
+
+env:
+  APP_NAME: libmig
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v4
+        with:
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload assets
+        uses: actions/upload-artifact@v3
+        with:
+          name: assets
+          path: ./dist/*
